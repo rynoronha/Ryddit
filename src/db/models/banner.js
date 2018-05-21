@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
   var Banner = sequelize.define('Banner', {
     source: DataTypes.STRING,
     description: DataTypes.STRING,
-   topicId: {
+    topicId: {
      type: DataTypes.INTEGER,
      onDelete: "CASCADE",
      references: {
