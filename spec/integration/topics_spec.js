@@ -129,7 +129,7 @@ describe("routes : topics", () => {
        request.get(`${base}${this.topic.id}/edit`, (err, res, body) => {
          expect(err).toBeNull();
          expect(body).toContain("Edit Topic");
-         expect(body).toContain("JavaScript Frameworks");
+         expect(body).toContain("JS Frameworks");
          done();
        });
      });
