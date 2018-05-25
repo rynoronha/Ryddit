@@ -83,7 +83,7 @@ describe("Topic", () => {
         expect(posts[0].title).toBe("My first visit to Proxima Centauri b");
         done();
        });
-       
+
      });
 
    });
