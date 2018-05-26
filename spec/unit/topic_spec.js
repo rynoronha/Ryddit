@@ -39,7 +39,7 @@ describe("Topic", () => {
          title: "Classical Music",
          description: "Where we debate the greatest composers of all time"
        })
-       .then((post) => {
+       .then((topic) => {
          expect(topic.title).toBe("Classical Music");
          expect(topic.description).toBe("Where we debate the greatest composers of all time");
          done();
@@ -57,7 +57,7 @@ describe("Topic", () => {
        Topic.create({
          title: "Classical Music"
        })
-       .then((post) => {
+       .then((topic) => {
 
         // the code in this block will not be evaluated since the validation error
         // will skip it. Instead, we'll catch the error in the catch block below

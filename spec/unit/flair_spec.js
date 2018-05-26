@@ -26,8 +26,8 @@ describe("Flair", () => {
           Flair.create({
             name: "My first flair",
             color: "Red",
+            topicId: this.topic.id,
             postId: this.post.id
-          done();
         })
         .then((flair) => {
           this.flair = flair;
@@ -49,6 +49,7 @@ describe("Flair", () => {
        Flair.create({
          name: "My second flair",
          color: "Green",
+         topicId: this.topic.id,
          postId: this.post.id
        })
        .then((flair) => {
@@ -61,6 +62,26 @@ describe("Flair", () => {
          done();
        });
 
+     });
+
+     it("should not create a flair with missing name, color, or assigned post", (done) => {
+
+       Flair.create({
+         name: "My second flair"
+       })
+       .then((flair) => {
+
+        // the code in this block will not be evaluated since the validation error
+        // will skip it. Instead, we'll catch the error in the catch block below
+        // and set the expectations there
+
+         done();
+        })
+       .catch((err) => {
+         expect(err.message).toContain("Flair.color cannot be null");
+         expect(err.message).toContain("Flair.postId cannot be null");
+         done();
+        })
      });
 
   });
