@@ -39,6 +39,26 @@ module.exports = {
          res.redirect(303, `/topics/${req.params.topicId}/posts/${req.params.postId}`)
        }
      });
+  },
+
+  edit(req, res, next){
+     flairQueries.getFlair(req.params.id, (err, flair) => {
+       if(err || flair == null){
+         res.redirect(404, "/");
+       } else {
+         res.render("flairs/edit", {flair, topicId: req.params.topicId});
+       }
+     });
+  },
+
+  update(req, res, next){
+     flairQueries.updateFlair(req.params.id, req.body, (err, flair) => {
+       if(err || flair == null){
+         res.redirect(404, `/topics/${req.params.topicId}/posts/${req.params.postId}/flairs/${req.params.id}`);
+       } else {
+         res.redirect(`/topics/${req.params.topicId}/posts/${req.params.postId}/flairs/${req.params.id}`);
+       }
+     });
   }
 
 }

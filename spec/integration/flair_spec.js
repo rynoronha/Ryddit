@@ -65,8 +65,8 @@ describe("routes : flair", () => {
       const options = {
         url: `${base}/${this.topic.id}/posts/${this.post.id}/flairs/create`,
         form: {
-          name: "Blue flair",
-          color: "blue"
+          title: "Blue flair",
+          body: "blue"
         }
       };
       request.post(options,
@@ -117,6 +117,58 @@ describe("routes : flair", () => {
 
        });
 
+     });
+
+  });
+
+  describe("GET /topics/:topicId/posts/:postId/flairs/id/edit", () => {
+
+     it("should render a view with an edit flair form", (done) => {
+       request.get(`${base}/${this.topic.id}/posts/${this.post.id}/flairs/${this.flair.id}/edit`, (err, res, body) => {
+         expect(err).toBeNull();
+         expect(body).toContain("Edit Flair");
+         expect(body).toContain("Winter Olympics");
+         done();
+       });
+     });
+
+  });
+
+  describe("POST /topics/:topicId/posts/:postId/flairs/:id/update", () => {
+
+     it("should return a status code 302", (done) => {
+       request.post({
+         url: `${base}/${this.topic.id}/posts/${this.post.id}/flairs/${this.flair.id}/update`,
+         form: {
+           title: "Winter games",
+           body: "red"
+         }
+       }, (err, res, body) => {
+         expect(res.statusCode).toBe(302);
+         done();
+       });
+     });
+
+     it("should update the post with the given values", (done) => {
+         const options = {
+           url: `${base}/${this.topic.id}/posts/${this.post.id}/flairs/${this.flair.id}/update`,
+           form: {
+             title: "Winter games",
+           }
+         };
+         request.post(options,
+           (err, res, body) => {
+
+           expect(err).toBeNull();
+
+           Flair.findOne({
+             where: {id: this.flair.id}
+           })
+           .then((flair) => {
+             expect(flair.name).toBe("Winter games");
+             done();
+           });
+         });
      });
 
   });
