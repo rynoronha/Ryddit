@@ -140,8 +140,8 @@ describe("routes : flair", () => {
        request.post({
          url: `${base}/${this.topic.id}/posts/${this.post.id}/flairs/${this.flair.id}/update`,
          form: {
-           title: "Winter games",
-           body: "red"
+           name: "Winter games",
+           color: "red"
          }
        }, (err, res, body) => {
          expect(res.statusCode).toBe(302);
@@ -153,7 +153,7 @@ describe("routes : flair", () => {
          const options = {
            url: `${base}/${this.topic.id}/posts/${this.post.id}/flairs/${this.flair.id}/update`,
            form: {
-             title: "Winter games",
+             name: "Winter games",
            }
          };
          request.post(options,
