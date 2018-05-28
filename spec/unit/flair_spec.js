@@ -26,7 +26,6 @@ describe("Flair", () => {
           Flair.create({
             name: "My first flair",
             color: "Red",
-            topicId: this.topic.id,
             postId: this.post.id
         })
         .then((flair) => {
@@ -49,7 +48,6 @@ describe("Flair", () => {
        Flair.create({
          name: "My second flair",
          color: "Green",
-         topicId: this.topic.id,
          postId: this.post.id
        })
        .then((flair) => {
