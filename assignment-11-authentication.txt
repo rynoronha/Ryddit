@@ -1,0 +1,9 @@
+#### Exercises
+
+1. For this assignment, read more about the different strategies available for authenticating with Passport.
+Pick a strategy to study and write a high-level explanation of how it works.
+This explanation does not need to be technical.
+
+A: Passport-facebook. This strategy lets users authenticate an app via their facebook account. The application must be first registered with facebook.
+Two routes are required for Facebook authentication. The first route redirects the user to Facebook. The second route is the URL to which Facebook will redirect the user after they have logged in.
+A link or button can be placed on a web page, allowing one-click login with Facebook.
