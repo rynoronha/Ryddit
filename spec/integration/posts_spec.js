@@ -45,28 +45,37 @@ describe("routes : posts", () => {
 
    });
 
-//contest of member user
-  describe("member user performing CRUD actions for Topic", () => {
+//context of member user
+  describe("member user performing CRUD actions for Post", () => {
 
-     beforeEach((done) => {
-       request.get({
-         url: "http://localhost:3000/auth/fake",
-         form: {
-           role: "member"
-         }
-       },
-         (err, res, body) => {
-           done();
-         }
-       );
-     });
+    beforeEach((done) => {
+      User.create({
+        email: "member@example.com",
+        password: "123456",
+        role: "member"
+      })
+      .then((user) => {
+        request.get({         // mock authentication
+          url: "http://localhost:3000/auth/fake",
+          form: {
+            role: user.role,     // mock authenticate as member user
+            userId: user.id,
+            email: user.email
+          }
+        },
+          (err, res, body) => {
+            done();
+          }
+        );
+      });
+    });
 
   describe("GET /topics/:topicId/posts/new", () => {
 
-    it("should redirect to topics view", (done) => {
+    it("should render a new post form", (done) => {
       request.get(`${base}/${this.topic.id}/posts/new`, (err, res, body) => {
         expect(err).toBeNull();
-        expect(body).toContain("Posts");
+        expect(body).toContain("New Post");
         done();
       });
     });
@@ -75,7 +84,7 @@ describe("routes : posts", () => {
 
   describe("POST /topics/:topicId/posts/create", () => {
 
-   it("should not create a new post", (done) => {
+   it("should create a new post and redirect", (done) => {
       const options = {
         url: `${base}/${this.topic.id}/posts/create`,
         form: {
@@ -88,8 +97,35 @@ describe("routes : posts", () => {
 
           Post.findOne({where: {title: "Watching snow melt"}})
           .then((post) => {
-            expect(post).toBeNull(); // no post should be returned
+            expect(post).not.toBeNull();
+            expect(post.title).toBe("Watching snow melt");
+            expect(post.body).toBe("Without a doubt my favoriting things to do besides watching paint dry!");
+            expect(post.topicId).not.toBeNull();
             done();
+          })
+          .catch((err) => {
+            console.log(err);
+            done();
+          });
+        }
+      );
+    });
+
+    it("should not create a new post that fails validations", (done) => {
+      const options = {
+        url: `${base}/${this.topic.id}/posts/create`,
+        form: {
+          title: "a",
+          body: "b"
+        }
+      };
+
+      request.post(options,
+        (err, res, body) => {
+          Post.findOne({where: {title: "a"}})
+          .then((post) => {
+              expect(post).toBeNull();
+              done();
           })
           .catch((err) => {
             console.log(err);
