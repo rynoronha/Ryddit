@@ -65,6 +65,7 @@ describe("routes : comments", () => {
     });
   });
 
+  //context of guest user
   describe("guest attempting to perform CRUD actions for Comment", () => {
 
      beforeEach((done) => {    // before each suite in this context
@@ -130,8 +131,9 @@ describe("routes : comments", () => {
 
      });
 
-   });
+   }); //end context of guest use
 
+  //context of signed in user
   describe("signed in user performing CRUD actions for Comment", () => {
 
      beforeEach((done) => {    // before each suite in this context
@@ -182,9 +184,7 @@ describe("routes : comments", () => {
          Comment.all()
          .then((comments) => {
            const commentCountBeforeDelete = comments.length;
-
            expect(commentCountBeforeDelete).toBe(1);
-
            request.post(
             `${base}${this.topic.id}/posts/${this.post.id}/comments/${this.comment.id}/destroy`,
              (err, res, body) => {
@@ -202,6 +202,181 @@ describe("routes : comments", () => {
        });
 
      });
-   });
-   
+
+   }); //end context for signed in user
+
+   //context for member trying to delete member comment
+   describe("signed-in user performing CRUD actions for Comment", () => {
+
+     beforeEach((done) => {    // before each suite in this context
+       request.get({           // mock authentication
+         url: "http://localhost:3000/auth/fake",
+         form: {
+           role: "member",     // mock authenticate as member user
+           userId: this.user.id
+         }
+       },
+         (err, res, body) => {
+           done();
+         }
+       );
+     });
+
+     describe("POST /topics/:topicId/posts/:postId/comments/create", () => {
+
+       it("should create a new comment and redirect", (done) => {
+         const options = {
+           url: `${base}${this.topic.id}/posts/${this.post.id}/comments/create`,
+           form: {
+             body: "This comment is amazing!"
+           }
+         };
+         request.post(options,
+           (err, res, body) => {
+             Comment.findOne({where: {body: "This comment is amazing!"}})
+             .then((comment) => {
+               expect(comment).not.toBeNull();
+               expect(comment.body).toBe("This comment is amazing!");
+               expect(comment.id).not.toBeNull();
+               done();
+             })
+             .catch((err) => {
+               console.log(err);
+               done();
+             });
+           }
+         );
+       });
+
+     });
+
+     describe("POST /topics/:topicId/posts/:postId/comments/:id/destroy", () => {
+
+      beforeEach((done) => {
+        request.get({
+          url: "http://localhost:3000/auth/fake",
+          form: {
+            role: "member",
+            userId: 3
+          }
+        },
+          (err, res, body) => {
+            done();
+          }
+        );
+      });
+
+      it("should not delete another members comment", (done) => {
+        Comment.all()
+        .then((comments) => {
+          const commentCountBeforeDelete = comments.length;
+          expect(commentCountBeforeDelete).toBe(1);
+          request.post(
+            `${base}${this.topic.id}/posts/${this.post.id}/comments/${this.comment.id}/destroy`,
+            (err, res, body) => {
+              expect(res.statusCode).toBe(401);
+              Comment.all()
+              .then((comments) => {
+                expect(err).toBeNull();
+                expect(comments.length).toBe(commentCountBeforeDelete);
+                done();
+              })
+          });
+        })
+      });
+
+    });
+
+   }); //end context for member trying to delete member comment
+
+   //context for admin trying to delete member comment
+  describe("admin user performing CRUD actions for on another user Comment", () => {
+
+    describe("POST /topics/:topicId/posts/:postId/comments/create", () => {
+      beforeEach((done) => {
+        request.get({
+          url: "http://localhost:3000/auth/fake",
+          form: {
+            role: "member",
+            userId: this.user.id
+          }
+        },
+          (err, res, body) => {
+            done();
+          }
+        );
+      });
+
+      it("should create a new comment and redirect", (done) => {
+        const options = {
+          url: `${base}${this.topic.id}/posts/${this.post.id}/comments/create`,
+          form: {
+            body: "This comment is amazing!"
+          }
+        };
+        request.post(options,
+          (err, res, body) => {
+            Comment.findOne({where: {body: "This comment is amazing!"}})
+            .then((comment) => {
+              expect(comment).not.toBeNull();
+              expect(comment.body).toBe("This comment is amazing!");
+              expect(comment.id).not.toBeNull();
+              done();
+            })
+            .catch((err) => {
+              console.log(err);
+              done();
+            });
+          }
+        );
+      });
+    });
+
+    describe("POST /topics/:topicId/posts/:postId/comments/:id/destroy", () => {
+      
+      beforeEach((done) => {
+        User.create({
+          email: "admin@example.com",
+          password: "123456",
+          role: "admin"
+        })
+        .then((user) => {
+          request.get({         // mock authentication
+            url: "http://localhost:3000/auth/fake",
+            form: {
+              role: user.role,     // mock authenticate as admin user
+              userId: user.id,
+              email: user.email
+            }
+          },
+            (err, res, body) => {
+              done();
+            }
+          );
+        });
+      });
+
+      it("should delete another members comment", (done) => {
+        Comment.all()
+        .then((comments) => {
+          const commentCountBeforeDelete = comments.length;
+          expect(commentCountBeforeDelete).toBe(1);
+          request.post(
+            `${base}${this.topic.id}/posts/${this.post.id}/comments/${this.comment.id}/destroy`,
+            (err, res, body) => {
+              expect(res.statusCode).toBe(302);
+              Comment.all()
+              .then((comments) => {
+                expect(err).toBeNull();
+                expect(comments.length).toBe(commentCountBeforeDelete - 1);
+                done();
+              })
+          });
+        })
+      });
+
+    });
+
+  }); //end context for admin trying to delete member comment
+
 });
