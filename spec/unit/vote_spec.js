@@ -103,6 +103,23 @@ describe("Vote", () => {
          });
        });
 
+       it("should not create a vote with a value other than 1 or -1", (done) => {
+          Vote.create({
+            value: 2,
+            postId: this.post.id,
+            userId: this.user.id
+          })
+          .then((vote) => {
+            // the code in this block will not be evaluated since the validation error
+            // will skip it. Instead, we'll catch the error in the catch block below
+            // and set the expectations there
+          })
+          .catch((err) => {
+            expect(err.message).toContain("Validation isIn on value failed");
+            done();
+          });
+        });
+
        it("should not create a vote without assigned post or user", (done) => {
 
          Vote.create({
@@ -239,6 +256,68 @@ describe("Vote", () => {
 
    });
 
-  //suits will begin here
+   describe("#getPoints()", () => {
+
+    it("should return a count of all the votes a post has", (done) => {
+      Vote.create({
+        value: 1,
+        userId: this.user.id,
+        postId: this.post.id
+      })
+      .then((votes) => {
+        let points = this.post.getPoints();
+        expect(points).toBe(1);
+        done();
+      })
+      .catch((err) => {
+        console.log(err);
+        done();
+      });
+    });
+
+  });
+
+  describe("#hasUpvoteFor()", () => {
+
+    it("should return true if a user has an upvote", (done) => {
+      Vote.create({
+        value: 1,
+        userId: this.user.id,
+        postId: this.post.id
+      })
+      .then((vote) => {
+        let upvotes = vote.postId.hasUpvoteFor()
+        expect(upvotes).toBe(true);
+        done();
+      })
+      .catch((err) => {
+        console.log(err);
+        done();
+      });
+    });
+  });
+
+
+  describe("#hasDownvoteFor()", () => {
+
+    it("should return true if a user has a downvote", (done) => {
+      Vote.create({
+        value: -1,
+        userId: this.user.id,
+        postId: this.post.id
+      })
+      .then((vote) => {
+        vote.postId.hasDownvoteFor()
+        let downvotes = vote.postId.hasDownvoteFor()
+        expect(downvotes).toBe(true);
+        done();
+      })
+      .catch((err) => {
+        console.log(err);
+        done();
+      });
+    });
+  });
+
 
 });
